@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<link rel="manifest" href="manifest.json">
+<link rel="service" href="service-worker.js
+<meta name="theme-color" content="#1976d2">
+<meta charset="UTF-8">
+<title>Chronomètre</title>
+
+<style>
+body{
+    font-family:Arial;
+    text-align:center;
+    margin-top:80px;
+}
+
+#chrono{
+    font-size:60px;
+    margin:30px;
+    font-family:monospace;
+}
+
+button{
+    font-size:22px;
+    padding:10px 30px;
+    margin:10px;
+}
+</style>
+
+</head>
+
+<body>
+
+<h1>Chronomètre</h1>
+
+<div id="chrono">00:00.00</div>
+
+<button onclick="reset()">Remise à zéro</button>
+<button onclick="depart()">Départ</button>
+<button onclick="arret()">Arrêt</button>
+
+<script>
+
+let debut = 0;
+let timer = null;
+
+function depart(){
+
+    if(timer) return;
+
+    let affichage = document.getElementById("chrono").innerText.split(":");
+
+    let tempsActuel = 0;
+
+    if(affichage.length === 2){
+        let minutes = parseInt(affichage[0]);
+        let secondes = parseFloat(affichage[1]);
+        tempsActuel = minutes * 60 + secondes;
+    }
+
+    debut = performance.now() - tempsActuel * 1000;
+
+    timer = setInterval(function(){
+
+        let t = (performance.now() - debut) / 1000;
+
+        let minutes = Math.floor(t / 60);
+        let secondes = Math.floor(t % 60);
+        let centiemes = Math.floor((t - Math.floor(t)) * 100);
+
+        document.getElementById("chrono").innerText =
+            String(minutes).padStart(2, "0") + ":" +
+            String(secondes).padStart(2, "0") + "." +
+            String(centiemes).padStart(2, "0");
+
+    }, 10);
+}
+
+function arret(){
+
+    clearInterval(timer);
+    timer = null;
+
+}
+
+function reset(){
+
+    clearInterval(timer);
+    timer = null;
+
+    document.getElementById("chrono").innerText = "00:00.00";
+
+}
+
+</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js')
+        .then(() => console.log("Service Worker installé"))
+        .catch(err => console.log(err));
+}
+</script>
+
+</body>
+</html>
