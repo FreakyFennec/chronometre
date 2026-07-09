@@ -1,171 +1,295 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+
 <meta charset="UTF-8">
 <meta name="theme-color" content="#1976d2">
 <link rel="manifest" href="manifest.json">
+
 <title>Chronomètre</title>
 
 <style>
+
+*{
+    box-sizing:border-box;
+}
+
 body{
     margin:0;
     height:100vh;
     display:flex;
     justify-content:center;
     align-items:center;
-    background:linear-gradient(135deg,#1976d2,#0d47a1);
+    background:radial-gradient(circle at top,#dddcdc,#313131);
     font-family:Arial,sans-serif;
 }
 
-.container{
-    background:white;
-    padding:40px;
-    border-radius:20px;
-    box-shadow:0 15px 40px rgba(0,0,0,.25);
-    text-align:center;
+.stopwatch{
+    position:relative;
+    width:420px;
+}
+
+.stopwatch svg{
+    width:100%;
+    display:block;
+    filter:drop-shadow(0 15px 30px rgba(0,0,0,.35));
+}
+
+.ring{
+    fill:none;
+    stroke:#777;
+    stroke-width:6;
+}
+
+.metal{
+    fill:#777;
+}
+
+.progress{
+    fill:none;
+    stroke:#2196f3;
+    stroke-width:10;
+    stroke-linecap:round;
+
+    transition:.03s linear;
 }
 
 #chrono{
-    font-size:70px;
-    font-family:"Courier New",monospace;
+    position:absolute;
+    top:225px;
+    left:0;
+    width:100%;
+    text-align:center;
+
+    font-size:48px;
+    font-family:monospace;
     font-weight:bold;
-    color:#1976d2;
-    margin:30px 0;
-    letter-spacing:3px;
+
+    color:#1565c0;
+    transition:.2s;
+}
+
+.running{
+    color:#2e7d32;
+    transform:scale(1.05);
+    text-shadow:0 0 12px rgba(46,125,50,.5);
 }
 
 .buttons{
     display:flex;
     justify-content:center;
     gap:15px;
-    flex-wrap:wrap;
+    margin-top:15px;
 }
 
 button{
+
     border:none;
-    border-radius:10px;
-    padding:15px 25px;
-    margin:10px;
-    font-size:18px;
-    cursor:pointer;
+    border-radius:12px;
+
+    padding:14px 22px;
+
     color:white;
+    cursor:pointer;
+
+    font-size:17px;
+
     transition:.25s;
+
 }
 
 button:hover{
+
     transform:translateY(-3px);
+
     box-shadow:0 8px 20px rgba(0,0,0,.25);
+
 }
 
 button:active{
-    transform:scale(.97);
+    transform:scale(.96);
 }
 
-.start{
-    background:#43a047;
-}
+.start{background:#43a047;}
+.stop{background:#e53935;}
+.reset{background:#fb8c00;}
 
-.stop{
-    background:#e53935;
-}
-
-.reset{
-    background:#fb8c00;
-}
-
-#chrono{
-    transition:.2s;
-}
-
-.running{
-    color:#2e7d32;
-    transform:scale(1.08);
-    text-shadow:0 0 15px rgba(46,125,50,.5);
-}
 </style>
 
 </head>
 
 <body>
-    <div class="container">
 
-        <h1>Chronomètre</h1>
+<div class="stopwatch">
 
-        <div id="chrono">00:00.00</div>
+<svg viewBox="0 0 400 520">
 
-        <div class="buttons">
-            <button class="reset" onclick="reset()">Remise à zéro</button>
-            <button class="start" onclick="depart()">Départ</button>
-            <button class="stop" onclick="arret()">Arrêt</button>
-        </div>
-    </div>
+<defs>
+
+<radialGradient id="metal">
+
+<stop offset="0%" stop-color="#ffffff"/>
+<stop offset="60%" stop-color="#efefef"/>
+<stop offset="100%" stop-color="#cfcfcf"/>
+
+</radialGradient>
+
+</defs>
+
+<!-- Anneau -->
+
+<circle
+cx="200"
+cy="40"
+r="18"
+class="ring"/>
+
+<!-- Tige -->
+
+<rect
+x="190"
+y="58"
+width="20"
+height="25"
+rx="8"
+class="metal"/>
+
+<!-- Bouton -->
+
+<rect
+x="160"
+y="10"
+width="80"
+height="25"
+rx="10"
+class="metal"/>
+
+<!-- Corps -->
+
+<circle
+cx="200"
+cy="250"
+r="160"
+fill="url(#metal)"
+stroke="#555"
+stroke-width="8"/>
+
+<!-- Progression -->
+
+<circle
+id="progress"
+cx="200"
+cy="250"
+r="140"
+class="progress"
+transform="rotate(-90 200 250)"/>
+
+</svg>
+
+<div id="chrono">00:00.00</div>
+
+<div class="buttons">
+
+<button class="reset" onclick="reset()">⟲</button>
+
+<button class="start" onclick="depart()">▶</button>
+
+<button class="stop" onclick="arret()">■</button>
+
+</div>
+
+</div>
 
 <script>
 
 let debut = 0;
 let timer = null;
 
+const cercle = document.getElementById("progress");
+
+const rayon = 140;
+const longueur = 2 * Math.PI * rayon;
+
+cercle.style.strokeDasharray = longueur;
+cercle.style.strokeDashoffset = longueur;
+
 function depart(){
 
     if(timer) return;
 
-    document.getElementById("chrono").classList.add("running");
+    chrono.classList.add("running");
 
-    let affichage = document.getElementById("chrono").innerText.split(":");
+    let affichage = chrono.innerText.split(":");
 
     let tempsActuel = 0;
 
-    if(affichage.length === 2){
-        let minutes = parseInt(affichage[0]);
-        let secondes = parseFloat(affichage[1]);
-        tempsActuel = minutes * 60 + secondes;
+    if(affichage.length===2){
+
+        let minutes=parseInt(affichage[0]);
+        let secondes=parseFloat(affichage[1]);
+
+        tempsActuel=minutes*60+secondes;
+
     }
 
-    debut = performance.now() - tempsActuel * 1000;
+    debut=performance.now()-tempsActuel*1000;
 
-    timer = setInterval(function(){
+    timer=setInterval(function(){
 
-        let t = (performance.now() - debut) / 1000;
+        let t=(performance.now()-debut)/1000;
 
-        let minutes = Math.floor(t / 60);
-        let secondes = Math.floor(t % 60);
-        let centiemes = Math.floor((t - Math.floor(t)) * 100);
+        let minutes=Math.floor(t/60);
+        let secondes=Math.floor(t%60);
+        let centiemes=Math.floor((t-Math.floor(t))*100);
 
-        document.getElementById("chrono").innerText =
-            String(minutes).padStart(2, "0") + ":" +
-            String(secondes).padStart(2, "0") + "." +
-            String(centiemes).padStart(2, "0");
+        chrono.innerText=
+            String(minutes).padStart(2,"0")+":"+
+            String(secondes).padStart(2,"0")+"."+
+            String(centiemes).padStart(2,"0");
 
-    }, 10);
+        let progression=(t%60)/60;
+
+        cercle.style.strokeDashoffset=
+            longueur-(progression*longueur);
+
+    },10);
+
 }
 
 function arret(){
 
-    document.getElementById("chrono").classList.remove("running");
+    chrono.classList.remove("running");
+
     clearInterval(timer);
-    timer = null;
+
+    timer=null;
 
 }
 
 function reset(){
 
     clearInterval(timer);
-    timer = null;
 
-    document.getElementById("chrono").classList.remove("running");
+    timer=null;
 
-    document.getElementById("chrono").innerText = "00:00.00";
+    chrono.classList.remove("running");
+
+    chrono.innerText="00:00.00";
+
+    cercle.style.strokeDashoffset=longueur;
 
 }
 
 </script>
 
 <script>
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('service-worker.js')
-        .then(() => console.log("Service Worker installé"))
-        .catch(err => console.log(err));
+
+if('serviceWorker' in navigator){
+
+navigator.serviceWorker.register('service-worker.js');
+
 }
+
 </script>
 
 </body>
