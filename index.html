@@ -1,43 +1,104 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<link rel="manifest" href="manifest.json">
-<link rel="service" href="service-worker.js
-<meta name="theme-color" content="#1976d2">
 <meta charset="UTF-8">
+<meta name="theme-color" content="#1976d2">
+<link rel="manifest" href="manifest.json">
 <title>Chronomètre</title>
 
 <style>
 body{
-    font-family:Arial;
+    margin:0;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:linear-gradient(135deg,#1976d2,#0d47a1);
+    font-family:Arial,sans-serif;
+}
+
+.container{
+    background:white;
+    padding:40px;
+    border-radius:20px;
+    box-shadow:0 15px 40px rgba(0,0,0,.25);
     text-align:center;
-    margin-top:80px;
 }
 
 #chrono{
-    font-size:60px;
-    margin:30px;
-    font-family:monospace;
+    font-size:70px;
+    font-family:"Courier New",monospace;
+    font-weight:bold;
+    color:#1976d2;
+    margin:30px 0;
+    letter-spacing:3px;
+}
+
+.buttons{
+    display:flex;
+    justify-content:center;
+    gap:15px;
+    flex-wrap:wrap;
 }
 
 button{
-    font-size:22px;
-    padding:10px 30px;
+    border:none;
+    border-radius:10px;
+    padding:15px 25px;
     margin:10px;
+    font-size:18px;
+    cursor:pointer;
+    color:white;
+    transition:.25s;
+}
+
+button:hover{
+    transform:translateY(-3px);
+    box-shadow:0 8px 20px rgba(0,0,0,.25);
+}
+
+button:active{
+    transform:scale(.97);
+}
+
+.start{
+    background:#43a047;
+}
+
+.stop{
+    background:#e53935;
+}
+
+.reset{
+    background:#fb8c00;
+}
+
+#chrono{
+    transition:.2s;
+}
+
+.running{
+    color:#2e7d32;
+    transform:scale(1.08);
+    text-shadow:0 0 15px rgba(46,125,50,.5);
 }
 </style>
 
 </head>
 
 <body>
+    <div class="container">
 
-<h1>Chronomètre</h1>
+        <h1>Chronomètre</h1>
 
-<div id="chrono">00:00.00</div>
+        <div id="chrono">00:00.00</div>
 
-<button onclick="reset()">Remise à zéro</button>
-<button onclick="depart()">Départ</button>
-<button onclick="arret()">Arrêt</button>
+        <div class="buttons">
+            <button class="reset" onclick="reset()">Remise à zéro</button>
+            <button class="start" onclick="depart()">Départ</button>
+            <button class="stop" onclick="arret()">Arrêt</button>
+        </div>
+    </div>
 
 <script>
 
@@ -47,6 +108,8 @@ let timer = null;
 function depart(){
 
     if(timer) return;
+
+    document.getElementById("chrono").classList.add("running");
 
     let affichage = document.getElementById("chrono").innerText.split(":");
 
@@ -78,6 +141,7 @@ function depart(){
 
 function arret(){
 
+    document.getElementById("chrono").classList.remove("running");
     clearInterval(timer);
     timer = null;
 
@@ -87,6 +151,8 @@ function reset(){
 
     clearInterval(timer);
     timer = null;
+
+    document.getElementById("chrono").classList.remove("running");
 
     document.getElementById("chrono").innerText = "00:00.00";
 
