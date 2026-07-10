@@ -1,118 +1,64 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
 
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#1976d2">
+
 <link rel="manifest" href="manifest.json">
 
-<title>Chronomètre</title>
+<title>Chronomètre 3D</title>
 
 <style>
 
-*{
-    box-sizing:border-box;
-}
-
+html,
 body{
-    margin:0;
-    height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    background:radial-gradient(circle at top,#dddcdc,#313131);
-    font-family:Arial,sans-serif;
+margin:0;
+width:100%;
+height:100%;
+overflow:hidden;
+background:#202020;
+font-family:Arial,Helvetica,sans-serif;
 }
 
-.stopwatch{
-    position:relative;
-    width:420px;
-}
-
-.stopwatch svg{
-    width:100%;
-    display:block;
-    filter:drop-shadow(0 15px 30px rgba(0,0,0,.35));
-}
-
-.ring{
-    fill:none;
-    stroke:#777;
-    stroke-width:6;
-}
-
-.metal{
-    fill:#777;
-}
-
-.progress{
-    fill:none;
-    stroke:#2196f3;
-    stroke-width:10;
-    stroke-linecap:round;
-
-    transition:.03s linear;
+#scene{
+position:absolute;
+left:0;
+top:0;
+width:100%;
+height:100%;
 }
 
 #chrono{
-    position:absolute;
-    top:225px;
-    left:0;
-    width:100%;
-    text-align:center;
 
-    font-size:48px;
-    font-family:monospace;
-    font-weight:bold;
+position:absolute;
 
-    color:#1565c0;
-    transition:.2s;
+left:50%;
+top:85vh;
+
+transform:translateX(-50%);
+
+font-size:clamp(28px,5vw,60px);
+font-family:monospace;
+font-weight:bold;
+
+color:#00bfff;
+
+text-shadow:
+0 0 10px #00bfff,
+0 0 20px #00bfff;
+
+pointer-events:none;
+
+user-select:none;
+white-space:nowrap;
 }
 
-.running{
-    color:#2e7d32;
-    transform:scale(1.05);
-    text-shadow:0 0 12px rgba(46,125,50,.5);
+canvas{
+display:block;
 }
-
-.buttons{
-    display:flex;
-    justify-content:center;
-    gap:15px;
-    margin-top:15px;
-}
-
-button{
-
-    border:none;
-    border-radius:12px;
-
-    padding:14px 22px;
-
-    color:white;
-    cursor:pointer;
-
-    font-size:17px;
-
-    transition:.25s;
-
-}
-
-button:hover{
-
-    transform:translateY(-3px);
-
-    box-shadow:0 8px 20px rgba(0,0,0,.25);
-
-}
-
-button:active{
-    transform:scale(.96);
-}
-
-.start{background:#43a047;}
-.stop{background:#e53935;}
-.reset{background:#fb8c00;}
 
 </style>
 
@@ -120,163 +66,572 @@ button:active{
 
 <body>
 
-<div class="stopwatch">
+<div id="scene"></div>
 
-<svg viewBox="0 0 400 520">
-
-<defs>
-
-<radialGradient id="metal">
-
-<stop offset="0%" stop-color="#ffffff"/>
-<stop offset="60%" stop-color="#efefef"/>
-<stop offset="100%" stop-color="#cfcfcf"/>
-
-</radialGradient>
-
-</defs>
-
-<!-- Anneau -->
-
-<circle
-cx="200"
-cy="40"
-r="18"
-class="ring"/>
-
-<!-- Tige -->
-
-<rect
-x="190"
-y="58"
-width="20"
-height="25"
-rx="8"
-class="metal"/>
-
-<!-- Bouton -->
-
-<rect
-x="160"
-y="10"
-width="80"
-height="25"
-rx="10"
-class="metal"/>
-
-<!-- Corps -->
-
-<circle
-cx="200"
-cy="250"
-r="160"
-fill="url(#metal)"
-stroke="#555"
-stroke-width="8"/>
-
-<!-- Progression -->
-
-<circle
-id="progress"
-cx="200"
-cy="250"
-r="140"
-class="progress"
-transform="rotate(-90 200 250)"/>
-
-</svg>
-
-<div id="chrono">00:00.00</div>
-
-<div class="buttons">
-
-<button class="reset" onclick="reset()">⟲</button>
-
-<button class="start" onclick="depart()">▶</button>
-
-<button class="stop" onclick="arret()">■</button>
-
+<div id="chrono">
+00:00.00
 </div>
 
-</div>
+<script type="importmap">
+{
+  "imports": {
+    "three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
 
-<script>
+<script type="module">
 
-let debut = 0;
-let timer = null;
+import * as THREE from "three";
 
-const cercle = document.getElementById("progress");
+import {
+GLTFLoader
+}
+from
+"three/addons/loaders/GLTFLoader.js";
 
-const rayon = 140;
-const longueur = 2 * Math.PI * rayon;
+import { OrbitControls }
+from "three/addons/controls/OrbitControls.js";
 
-cercle.style.strokeDasharray = longueur;
-cercle.style.strokeDashoffset = longueur;
+let scene;
+let camera;
+let renderer;
 
-function depart(){
+let controls;
 
-    if(timer) return;
+let modele;
 
-    chrono.classList.add("running");
+let trotteuseMinutes;
+let trotteuseSecondes;
 
-    let affichage = chrono.innerText.split(":");
+const raycaster=
+new THREE.Raycaster();
 
-    let tempsActuel = 0;
+const souris=
+new THREE.Vector2();
 
-    if(affichage.length===2){
+const chrono=
+document.getElementById("chrono");
 
-        let minutes=parseInt(affichage[0]);
-        let secondes=parseFloat(affichage[1]);
+let enMarche=false;
 
-        tempsActuel=minutes*60+secondes;
+let debut=0;
+
+let temps=0;
+
+init();
+
+function init(){
+
+scene=
+new THREE.Scene();
+
+scene.background=
+new THREE.Color(0x202020);
+
+camera=
+new THREE.PerspectiveCamera(
+
+45,
+
+window.innerWidth/
+window.innerHeight,
+
+0.01,
+
+1000
+
+);
+
+camera.position.set(
+0,
+0,
+5
+);
+
+renderer=
+new THREE.WebGLRenderer({
+
+antialias:true
+
+});
+
+renderer.setPixelRatio(
+window.devicePixelRatio
+);
+
+renderer.setSize(
+
+window.innerWidth,
+
+window.innerHeight
+
+);
+
+document
+.getElementById("scene")
+.appendChild(
+renderer.domElement
+);
+
+controls =
+new OrbitControls(
+camera,
+renderer.domElement
+);
+
+controls.enableDamping=true;
+
+window.addEventListener(
+    "pointerdown",
+    onPointerDown
+);
+
+const ambiante=
+new THREE.AmbientLight(
+
+0xffffff,
+
+2
+
+);
+
+scene.add(
+ambiante
+);
+
+const soleil=
+new THREE.DirectionalLight(
+
+0xffffff,
+
+4
+
+);
+
+soleil.position.set(
+5,
+5,
+5
+);
+
+scene.add(
+soleil
+);
+
+chargerGLB();
+
+animate();
+
+window.addEventListener(
+"resize",
+resize
+);
+
+}
+
+function chargerGLB(){
+
+const loader=
+new GLTFLoader();
+
+loader.load(
+
+"chronometre-01.glb",
+
+(gltf)=>{
+
+modele=
+gltf.scene;
+
+scene.add(
+modele
+);
+
+const boite=
+new THREE.Box3()
+.setFromObject(
+modele
+);
+
+modele.traverse((obj)=>{
+
+    if(obj.name.includes("trotteuse-01")){
+
+        trotteuseSecondes=obj;
+
+        console.log(
+            "Trotteuse secondes trouvée :",
+            obj.name
+        );
 
     }
 
-    debut=performance.now()-tempsActuel*1000;
 
-    timer=setInterval(function(){
+    if(obj.name.includes("trotteuse-02")){
 
-        let t=(performance.now()-debut)/1000;
+        trotteuseMinutes=obj;
 
-        let minutes=Math.floor(t/60);
-        let secondes=Math.floor(t%60);
-        let centiemes=Math.floor((t-Math.floor(t))*100);
+        console.log(
+            "Trotteuse minutes trouvée :",
+            obj.name
+        );
 
-        chrono.innerText=
-            String(minutes).padStart(2,"0")+":"+
-            String(secondes).padStart(2,"0")+"."+
-            String(centiemes).padStart(2,"0");
+    }
 
-        let progression=(t%60)/60;
+});
 
-        cercle.style.strokeDashoffset=
-            longueur-(progression*longueur);
+const centre=
+boite.getCenter(
+new THREE.Vector3()
+);
 
-    },10);
+const taille=
+boite.getSize(
+new THREE.Vector3()
+);
+
+modele.position.sub(
+centre
+);
+
+const max = Math.max(
+    taille.x,
+    taille.y,
+    taille.z
+);
+
+const echelle = 20 / max;
+
+modele.scale.setScalar(echelle);
+
+
+// Recentrage après mise à l'échelle
+const boiteCentre =
+new THREE.Box3()
+.setFromObject(modele);
+
+const nouveauCentre =
+boiteCentre.getCenter(
+    new THREE.Vector3()
+);
+
+modele.position.sub(
+    nouveauCentre
+);
+
+// Recalcule la boîte après mise à l'échelle
+const boite2 = new THREE.Box3().setFromObject(modele);
+const taille2 = boite2.getSize(new THREE.Vector3());
+
+camera.position.set(
+    0,
+    0,
+    taille2.y * 2.5
+);
+
+camera.lookAt(0,0,0);
+
+camera.lookAt(
+0,
+0,
+0
+);
+
+
+
+console.log(
+"Objets présents :"
+);
+
+modele.traverse(
+
+(obj)=>{
+
+console.log(
+obj.name
+);
 
 }
 
-function arret(){
+);
 
-    chrono.classList.remove("running");
+},
 
-    clearInterval(timer);
+(xhr)=>{
 
-    timer=null;
+console.log(
+
+Math.round(
+xhr.loaded/
+xhr.total*
+100
+),
+
+"%"
+
+);
+
+},
+
+(error)=>{
+
+console.error(
+error
+);
 
 }
 
-function reset(){
+);
 
-    clearInterval(timer);
+}
 
-    timer=null;
+function onPointerDown(event){
 
-    chrono.classList.remove("running");
+console.log("CLICK");
 
-    chrono.innerText="00:00.00";
+if(!modele)
+return;
 
-    cercle.style.strokeDashoffset=longueur;
+
+const rect =
+renderer.domElement.getBoundingClientRect();
+
+
+souris.x =
+((event.clientX - rect.left) /
+rect.width) * 2 - 1;
+
+
+souris.y =
+-((event.clientY - rect.top) /
+rect.height) * 2 + 1;
+
+
+raycaster.setFromCamera(
+    souris,
+    camera
+);
+
+
+const intersections =
+raycaster.intersectObject(
+    modele,
+    true
+);
+
+
+console.log(
+"Intersections :",
+intersections.length
+);
+
+
+for(
+let i=0;
+i<intersections.length;
+i++
+){
+
+let objet =
+intersections[i].object;
+
+
+console.log(
+"Test objet :",
+objet.name
+);
+
+
+while(objet){
+
+if(
+objet.name.includes("bouton-start-stop-01")
+){
+
+console.log(
+"START détecté"
+);
+
+startStop();
+
+return;
+
+}
+
+
+if(
+objet.name.includes("bouton-reset-01")
+){
+
+console.log(
+"RESET détecté"
+);
+
+resetChrono();
+
+return;
+
+}
+
+
+objet =
+objet.parent;
+
+}
+
+}
+
+}
+
+function startStop(){
+
+if(!enMarche){
+
+debut=
+performance.now()-temps;
+
+enMarche=true;
+
+}
+else{
+
+temps=
+performance.now()-debut;
+
+enMarche=false;
+
+}
+
+}
+
+function resetChrono(){
+
+enMarche=false;
+
+temps=0;
+
+debut=0;
+
+chrono.textContent=
+"00:00.00";
+
+if(trotteuseSecondes){
+
+    trotteuseSecondes.rotation.z=0;
+
+}
+
+if(trotteuseMinutes){
+
+    trotteuseMinutes.rotation.z=0;
+
+}
+
+}
+
+function updateChrono(){
+
+if(enMarche){
+
+temps=
+performance.now()-debut;
+
+}
+
+const minutes=
+Math.floor(
+temps/60000
+);
+
+const secondes=
+Math.floor(
+temps/1000
+)%60;
+
+const centiemes=
+Math.floor(
+(temps%1000)/10
+);
+
+chrono.textContent=
+
+String(minutes)
+.padStart(2,"0")
+
++":"
+
++String(secondes)
+.padStart(2,"0")
+
++"."
+
++String(centiemes)
+.padStart(2,"0");
+
+if(trotteuseMinutes){
+
+    const minutesAiguille =
+        Math.floor(temps / 60000);
+
+    const angle =
+        -minutesAiguille *
+        (Math.PI * 2 / 60);
+
+    trotteuseMinutes.rotation.z =
+        angle;
+
+}
+if(trotteuseSecondes){
+
+    const secondes =
+        Math.floor(temps / 1000);
+
+    const angle =
+        -secondes *
+        (Math.PI * 2 / 60);
+
+    trotteuseSecondes.rotation.z =
+        angle;
+
+}
+
+}
+
+function animate(){
+
+requestAnimationFrame(
+animate
+);
+
+if(controls)
+controls.update();
+
+updateChrono();
+
+renderer.render(
+scene,
+camera
+);
+
+}
+
+function resize(){
+
+camera.aspect=
+window.innerWidth/
+window.innerHeight;
+
+camera.updateProjectionMatrix();
+
+renderer.setSize(
+
+window.innerWidth,
+
+window.innerHeight
+
+);
 
 }
 
@@ -284,13 +639,41 @@ function reset(){
 
 <script>
 
-if('serviceWorker' in navigator){
+if("serviceWorker" in navigator){
 
-navigator.serviceWorker.register('service-worker.js');
+window.addEventListener(
+
+"load",
+
+()=>{
+
+navigator.serviceWorker
+.register(
+"service-worker.js"
+)
+.then(()=>{
+
+console.log(
+"Service Worker enregistré"
+);
+
+})
+.catch((err)=>{
+
+console.error(
+err
+);
+
+});
+
+}
+
+);
 
 }
 
 </script>
 
 </body>
+
 </html>
