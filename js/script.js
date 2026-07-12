@@ -221,15 +221,24 @@ function startStop() {
   } else {
     temps = performance.now() - debut;
     enMarche = false;
+
+    const session = {
+      activite: activiteActuelle,
+      duree: temps,
+      date: new Date()
+    };
+
+    console.log("Session terminée :", session);
   }
 }
 
 function resetChrono() {
   enMarche = false;
-
   temps = 0;
-
   debut = 0;
+
+  activiteActuelle = "";
+  selectActivite.value = "";
 
   if (trotteuseSecondes) {
     trotteuseSecondes.rotation.z = 0;
