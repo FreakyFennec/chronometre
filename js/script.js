@@ -3,7 +3,7 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { createSession } from "./session.js";
 import { saveSession, getSessions } from "./database.js";
-import { displayHistory } from "./history.js";
+import { initHistory, displayHistory } from "./history.js";
 
 // Variables globales
 let scene;
@@ -89,7 +89,7 @@ function init() {
 
   window.addEventListener("resize", resize);
 
-  displayHistory();
+  initHistory();
 }
 
 function chargerGLB() {
@@ -213,7 +213,7 @@ function onPointerDown(event) {
   }
 }
 
-function startStop() {
+async function startStop() {
   if (!enMarche) {
     if (activiteActuelle === "") {
       console.log("Aucune activité sélectionnée. Veuillez en choisir une.");
@@ -233,6 +233,8 @@ function startStop() {
     );
 
     saveSession(session);
+    await saveSession(session);
+    displayHistory();
   }
 }
 
@@ -240,9 +242,6 @@ function resetChrono() {
   enMarche = false;
   temps = 0;
   debut = 0;
-
-  activiteActuelle = "";
-  selectActivite.value = "";
 
   if (trotteuseSecondes) {
     trotteuseSecondes.rotation.z = 0;
