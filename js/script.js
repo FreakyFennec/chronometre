@@ -22,6 +22,7 @@ let enMarche = false;
 let debut = 0;
 
 let temps = 0;
+let activite = "Aucune";
 
 init();
 
