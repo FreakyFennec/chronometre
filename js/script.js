@@ -2,10 +2,10 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
+// Variables globales
 let scene;
 let camera;
 let renderer;
-
 let controls;
 
 let modele;
@@ -13,17 +13,27 @@ let modele;
 let trotteuseMinutes;
 let trotteuseSecondes;
 
+
 const raycaster = new THREE.Raycaster();
 
 const souris = new THREE.Vector2();
 
 let enMarche = false;
-
 let debut = 0;
-
 let temps = 0;
-let activite = "Aucune";
 
+let activiteActuelle = "";
+
+// Interface HTML
+const selectActivite = document.getElementById("activite");
+
+selectActivite.addEventListener("change", () => {
+  activiteActuelle = selectActivite.value;
+
+  console.log("Activité choisie :", activiteActuelle);
+});
+
+// Démarrage de l'application
 init();
 
 function init() {
@@ -200,12 +210,16 @@ function onPointerDown(event) {
 
 function startStop() {
   if (!enMarche) {
-    debut = performance.now() - temps;
+    if (activiteActuelle === "") {
+      console.log("Aucune activité sélectionnée. Veuillez en choisir une.");
+      return;
+    }
 
+    console.log("Demarrage :", activiteActuelle);
+    debut = performance.now() - temps;
     enMarche = true;
   } else {
     temps = performance.now() - debut;
-
     enMarche = false;
   }
 }
