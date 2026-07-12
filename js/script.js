@@ -3,6 +3,7 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { createSession } from "./session.js";
 import { saveSession, getSessions } from "./database.js";
+import { displayHistory } from "./history.js";
 
 // Variables globales
 let scene;
@@ -88,9 +89,7 @@ function init() {
 
   window.addEventListener("resize", resize);
 
-  getSessions().then((sessions) => {
-    console.log("Historique :", sessions);
-  });
+  displayHistory();
 }
 
 function chargerGLB() {
