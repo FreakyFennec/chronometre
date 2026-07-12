@@ -21,16 +21,24 @@ export async function displayHistory() {
 
   const sessions = await getSessions();
 
+  // Création d'une copie du tableau
+  const sortedSessions = [...sessions];
+
+  // Tri : de la plus récente à la plus ancienne
+  sortedSessions.sort((a, b) => {
+    return new Date(b.date) - new Date(a.date);
+  });
+
   container.innerHTML = "";
 
-  if (sessions.length === 0) {
+  if (sortedSessions.length === 0) {
     container.textContent = "Aucune session enregistrée.";
     return;
   }
 
   const ul = document.createElement("ul");
 
-  sessions.forEach((session) => {
+  sortedSessions.forEach((session) => {
     const li = document.createElement("li");
 
     li.textContent =
