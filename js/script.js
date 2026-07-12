@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { createSession } from "./session.js";
 
 // Variables globales
 let scene;
@@ -232,11 +233,10 @@ function startStop() {
     temps = performance.now() - debut;
     enMarche = false;
 
-    const session = {
-      activite: activiteActuelle,
-      duree: temps,
-      date: new Date()
-    };
+    const session = createSession(
+      activiteActuelle,
+      temps
+    );
 
     console.log("Session terminée :", session);
   }
