@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { createSession } from "./session.js";
+import { saveSession } from "./database.js";
 
 // Variables globales
 let scene;
@@ -207,16 +208,6 @@ function onPointerDown(event) {
       objet = objet.parent;
     }
   }
-}
-
-function saveSession(activité, durée) {
-  const session = {
-    activité: activité,
-    durée: durée,
-    date: new Date().toISOString()
-  };
-
-  return session;
 }
 
 function startStop() {
