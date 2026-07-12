@@ -57,9 +57,25 @@ export async function saveSession(session) {
   };
 
   transaction.onerror = () => {
-    console.error(
-      "Erreur sauvegarde :",
-      transaction.error
-    );
+    console.error("Erreur sauvegarde :", transaction.error);
   };
+}
+
+export async function getSessions() {
+  const db = await openDatabase();
+
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(STORE_NAME, "readonly");
+    const store = transaction.objectStore(STORE_NAME);
+
+    const request = store.getAll();
+
+    request.onsuccess = () => {
+      resolve(request.result);
+    };
+
+    request.onerror = () => {
+      reject(request.error);
+    };
+  });
 }
