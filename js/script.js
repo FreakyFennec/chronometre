@@ -208,6 +208,16 @@ function onPointerDown(event) {
   }
 }
 
+function saveSession(activité, durée) {
+  const session = {
+    activité: activité,
+    durée: durée,
+    date: new Date().toISOString()
+  };
+
+  return session;
+}
+
 function startStop() {
   if (!enMarche) {
     if (activiteActuelle === "") {
