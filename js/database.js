@@ -1,14 +1,3 @@
-
-sessions
-[
-  {
-    activité: "course",
-    durée: 3600000,
-    date: "..."
-  },
-  {
-    activité: "lecture",
-    durée: 1800000,
-    date: "..."
-  }
-]
+export function saveSession(session) {
+  console.log("Sauvegarde session :", session);
+}

@@ -238,7 +238,7 @@ function startStop() {
       temps
     );
 
-    console.log("Session terminée :", session);
+    saveSession(session);
   }
 }
 
