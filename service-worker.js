@@ -8,7 +8,7 @@ const FILES = [
   "./manifest.json",
   "./icon-192.png",
   "./icon-512.png",
-  "./chronometre-01.glb",
+  "./models/chronometre-01.glb",
 ];
 
 // Installation
