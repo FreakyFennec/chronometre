@@ -231,8 +231,6 @@ function resetChrono() {
 
   debut = 0;
 
-  chrono.textContent = "00:00.00";
-
   if (trotteuseSecondes) {
     trotteuseSecondes.rotation.z = 0;
   }
