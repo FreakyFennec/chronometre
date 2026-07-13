@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { RGBELoader } from "three/addons/loaders/RGBELoader.js";
 import { createSession } from "./session.js";
 import { saveSession } from "./database.js";
 import { initHistory, displayHistory } from "./history.js";
@@ -163,6 +164,46 @@ function init() {
 
   scene.add(soleil);
 
+  const fill = new THREE.DirectionalLight(
+      0xffffff,
+      3
+  );
+
+  fill.position.set(
+      -5,
+      2,
+      5
+  );
+
+  scene.add(fill);
+
+  const rimLight = new THREE.DirectionalLight(
+      0xffffff,
+      5
+  );
+
+  rimLight.position.set(
+      -5,
+      5,
+      -5
+  );
+
+  scene.add(rimLight);
+
+  const rgbeLoader = new RGBELoader();
+
+  rgbeLoader.load(
+    "textures/environment/studio.hdr",
+    (texture) => {
+
+      texture.mapping = THREE.EquirectangularReflectionMapping;
+
+      scene.environment = texture;
+      scene.environmentIntensity = 1.5;
+
+    }
+  );
+
   chargerGLB();
 
   animate();
@@ -199,6 +240,22 @@ function chargerGLB() {
         }
       });
 
+      modele.traverse((obj)=>{
+
+      if(obj.isMesh && obj.material.name === "Metal-chrome-01"){
+        obj.material = obj.material.clone();
+
+        obj.material.color.set(0xffffff);
+
+        obj.material.metalness = 1;
+
+        obj.material.roughness = 0.25;
+
+        obj.material.needsUpdate = true;
+      }
+
+  });
+
       const centre = boite.getCenter(new THREE.Vector3());
 
       const taille = boite.getSize(new THREE.Vector3());
@@ -226,13 +283,8 @@ function chargerGLB() {
 
       camera.lookAt(0, 0, 0);
 
-      camera.lookAt(0, 0, 0);
-
       console.log("Objets présents :");
 
-      modele.traverse((obj) => {
-        console.log(obj.name);
-      });
     },
 
     (xhr) => {
