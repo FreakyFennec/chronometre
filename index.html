@@ -28,35 +28,49 @@
   </head>
 
   <body>
-    <div id="interface">
-      <label for="activite">Activité :</label>
+    <div id="ui">
+      <div class ="card">
+        <label for="activite">Activité :</label>
 
-      <select id="activite" name="activite">
-        <option value="">-- Choisir --</option>
-        <option value="course">Course</option>
-        <option value="travail">Travail</option>
-        <option value="lecture">Lecture</option>
-        <option value="sport">Sport</option>
-        <option value="autre">Autre</option>
-      </select>
-      <!-- <div id="chrono">00:00.00</div> -->
+        <select id="activite" name="activite">
+          <option value="">-- Choisir --</option>
+          <option value="course">Course</option>
+          <option value="travail">Travail</option>
+          <option value="lecture">Lecture</option>
+          <option value="sport">Sport</option>
+          <option value="autre">Autre</option>
+        </select>
+
+        <button id="toggleHistory">
+            📜 Historique
+        </button>
+      </div>
     </div>
 
-    <div id="history-filter">
-      <label for="filtreActivite">Filtrer :</label>
+    <div id="history">
+      <div class="history-header">
+        <h2>Historique</h2>
 
-      <select id="filtreActivite">
-        <option value="">-- Choisir --</option>
-        <option value="course">Course</option>
-        <option value="travail">Travail</option>
-        <option value="lecture">Lecture</option>
-        <option value="sport">Sport</option>
-        <option value="autre">Autre</option>
-      </select>
+        <button id="closeHistory">✕</button>
+      </div>
+
+      <div class="history-filter">
+        <label for="filtreActivite">Filtrer :</label>
+
+        <select id="filtreActivite">
+          <option value="">Toutes les activités</option>
+          <option value="course">Course</option>
+          <option value="travail">Travail</option>
+          <option value="lecture">Lecture</option>
+          <option value="sport">Sport</option>
+          <option value="autre">Autre</option>
+        </select>
+      </div>
+
+      <div id="historyContent"></div>
     </div>
-
-    <div id="history"></div>
 
     <div id="scene"></div>
+    <!-- <div id="chrono">00:00.00</div> -->
   </body>
 </html>

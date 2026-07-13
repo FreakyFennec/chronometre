@@ -1,4 +1,4 @@
-// history.js
+// js/history.js
 
 import { getSessions } from "./database.js";
 
@@ -21,7 +21,7 @@ function formatDate(dateISO) {
 export async function displayHistory() {
   console.log("displayHistory appelé");
 
-  const container = document.getElementById("history");
+  const container = document.getElementById("historyContent");
 
   console.log("container :", container);
 
@@ -42,40 +42,54 @@ export async function displayHistory() {
 
   container.innerHTML = "";
 
-  if (filtreActuel === "") {
-    container.textContent = "Sélectionnez un filtre";
-    return;
-  }
-
   if (filteredSessions.length === 0) {
-    container.textContent = "Aucune session enregistrée pour cette activité.";
+    container.innerHTML = "<p class='history-message'>Aucune session enregistrée pour cette activité.</p>";
     return;
   }
 
-  const ul = document.createElement("ul");
+  const cards = document.createElement("div");
+cards.className = "history-cards";
 
-  filteredSessions.forEach((session) => {
-    const li = document.createElement("li");
 
-    li.textContent =
-      `${session.activite} — ` +
-      `${formatDuree(session.duree)} — ` +
-      `${formatDate(session.date)}`;
+filteredSessions.forEach((session) => {
 
-    ul.appendChild(li);
-  });
+  const card = document.createElement("div");
 
-  container.appendChild(ul);
+  card.className = `session-card ${session.activite}`;
+
+
+  card.innerHTML = `
+    <div class="session-header">
+      <span class="session-activity">
+        ${session.activite}
+      </span>
+
+      <span class="session-date">
+        ${formatDate(session.date)}
+      </span>
+    </div>
+
+
+    <div class="session-duration">
+      ${formatDuree(session.duree)}
+    </div>
+  `;
+
+
+  cards.appendChild(card);
+
+});
+
+
+container.appendChild(cards);
 }
 
 function filtrerSessions(sessions) {
   if (filtreActuel === "") {
-    return [];
+    return sessions;
   }
 
-  return sessions.filter((session) => {
-    return session.activite === filtreActuel;
-  });
+  return sessions.filter(session => session.activite === filtreActuel);
 }
 
 // Ecouter le changement du filtre

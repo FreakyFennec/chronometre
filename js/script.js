@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { createSession } from "./session.js";
-import { saveSession, getSessions } from "./database.js";
+import { saveSession } from "./database.js";
 import { initHistory, displayHistory } from "./history.js";
 
 // Variables globales
@@ -35,6 +35,86 @@ selectActivite.addEventListener("change", () => {
 
   console.log("Activité choisie :", activiteActuelle);
 });
+
+// ============================================================================
+// Gestion du panneau latéral "Historique"
+// ============================================================================
+
+// Récupération des éléments HTML
+const historyPanel = document.getElementById("history");
+const toggle = document.getElementById("toggleHistory");
+const closeButton = document.getElementById("closeHistory");
+
+/**
+ * Met à jour le texte du bouton principal.
+ * - Si le panneau est ouvert : "❌ Fermer"
+ * - Sinon : "📜 Historique"
+ */
+function updateHistoryButton() {
+  if (historyPanel.classList.contains("open")) {
+    toggle.textContent = "❌ Fermer";
+  } else {
+    toggle.textContent = "📜 Historique";
+  }
+}
+
+/**
+ * Ouvre le panneau latéral.
+ */
+function openHistory() {
+  historyPanel.classList.add("open");
+  updateHistoryButton();
+}
+
+/**
+ * Ferme le panneau latéral.
+ */
+function closeHistory() {
+  historyPanel.classList.remove("open");
+  updateHistoryButton();
+}
+
+/**
+ * Ouvre ou ferme le panneau lorsque
+ * l'utilisateur clique sur le bouton.
+ */
+toggle.addEventListener("click", () => {
+
+  if (historyPanel.classList.contains("open")) {
+    closeHistory();
+  } else {
+    openHistory();
+  }
+
+});
+
+/**
+ * Fermeture avec le bouton ✕
+ */
+closeButton.addEventListener("click", closeHistory);
+
+/**
+ * Fermeture lorsqu'on clique
+ * à l'extérieur du panneau.
+ */
+document.addEventListener("pointerdown", (event) => {
+
+  if (
+    historyPanel.classList.contains("open") &&
+    !historyPanel.contains(event.target) &&
+    event.target !== toggle
+  ) {
+    closeHistory();
+  }
+
+});
+
+/**
+ * Initialise le texte du bouton
+ * au chargement de la page.
+ */
+updateHistoryButton();
+
 
 // Démarrage de l'application
 init();
@@ -216,11 +296,14 @@ function onPointerDown(event) {
 async function startStop() {
   if (!enMarche) {
     if (activiteActuelle === "") {
+
       console.log("Aucune activité sélectionnée. Veuillez en choisir une.");
+
       return;
     }
 
     console.log("Demarrage :", activiteActuelle);
+
     debut = performance.now() - temps;
     enMarche = true;
   } else {
@@ -232,8 +315,10 @@ async function startStop() {
       temps
     );
 
-    saveSession(session);
+    // Enregistrement de la session dans IndexedDB
     await saveSession(session);
+
+    // Mise à jour de l'affichage de l'historique
     displayHistory();
   }
 }
