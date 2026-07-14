@@ -62,7 +62,7 @@ button:hover {
   position: fixed;
   top: 0;
   left: 0;
-  width: 320px;
+  width: min(85vw, 320px);
   height: 100%;
   overflow-y: auto;
   padding: 20px;
@@ -269,7 +269,6 @@ canvas {
   }
 
   #history {
-    width: 100%;
-    max-width: 100%;
+    width: min(90vw, 340px);
   }
 }
