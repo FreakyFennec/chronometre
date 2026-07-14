@@ -133,12 +133,17 @@ timerActionButton.addEventListener("click", () => {
   }
 
   timerRestant = minutes * 60;
+
+  updateTimerDisplay();
+
   timerEnCours = true;
   timerActionButton.textContent = "Arrêter";
 
   timerInterval = setInterval(() => {
 
     timerRestant--;
+
+    updateTimerDisplay();
 
     console.log("Temps restant :", timerRestant);
 
@@ -149,7 +154,10 @@ timerActionButton.addEventListener("click", () => {
       timerEnCours = false;
       timerInterval = null;
 
+      updateTimerDisplay();
+
       timerActionButton.textContent = "Démarrer";
+
 
       console.log("Timer terminé");
     }
@@ -157,6 +165,21 @@ timerActionButton.addEventListener("click", () => {
   }, 1000);
 
 });
+
+// Affichage du temps restant
+const timerDisplay = document.getElementById("timerDisplay");
+
+function updateTimerDisplay() {
+  const minutes = Math.floor(timerRestant / 60);
+  const secondes = timerRestant % 60;
+
+  const texte =
+    `${String(minutes).padStart(2, "0")}:${String(secondes).padStart(2, "0")}`;
+
+  console.log(texte);
+
+  timerDisplay.textContent = texte;
+}
 
 
 // ============================================================================

@@ -332,6 +332,14 @@ select {
   background: #555;
 }
 
+#timerDisplay {
+  font-size: 48px;
+  font-weight: bold;
+  color: white;
+  text-align: center;
+  margin: 20px 0;
+}
+
 @keyframes slideIn {
   from {
     opacity: 0;
