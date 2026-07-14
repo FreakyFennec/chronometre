@@ -29,12 +29,50 @@ let temps = 0;
 let activiteActuelle = "";
 
 // Interface HTML
-const selectActivite = document.getElementById("activite");
+const chronoButton = document.getElementById("openChrono");
+const chronoMenu = document.getElementById("chronoMenu");
 
-selectActivite.addEventListener("change", () => {
-  activiteActuelle = selectActivite.value;
+const activityButtons = document.querySelectorAll(
+  "#chronoMenu button"
+);
 
-  console.log("Activité choisie :", activiteActuelle);
+chronoButton.addEventListener("click", () => {
+  chronoMenu.classList.toggle("open");
+});
+
+
+activityButtons.forEach((button) => {
+
+  button.addEventListener("click", () => {
+
+    activiteActuelle = button.dataset.activity;
+
+    console.log(
+      "Activité choisie :",
+      activiteActuelle
+    );
+
+    chronoButton.textContent =
+      "⏱️ " + activiteActuelle;
+
+    chronoMenu.classList.remove("open");
+
+  });
+
+});
+
+// ===========================================================================
+// Gestion du panneau latéral "Timer"
+// ============================================================================
+
+const timerButton = document.getElementById("openTimer");
+
+timerButton.addEventListener("click", () => {
+
+  const timerPanel = document.getElementById("timerPanel");
+
+  timerPanel.classList.toggle("open");
+
 });
 
 // ============================================================================
@@ -349,7 +387,7 @@ async function startStop() {
   if (!enMarche) {
     if (activiteActuelle === "") {
 
-      console.log("Aucune activité sélectionnée. Veuillez en choisir une.");
+      console.log("Aucune activité sélectionnée.");
 
       return;
     }

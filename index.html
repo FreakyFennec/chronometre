@@ -29,22 +29,31 @@
 
   <body>
     <div id="ui">
-      <div class ="card">
-        <label for="activite">Activité :</label>
+      <div class="card">
+        <button id="openChrono">⏱️ Chrono</button>
 
-        <select id="activite" name="activite">
-          <option value="">-- Choisir --</option>
-          <option value="course">Course</option>
-          <option value="travail">Travail</option>
-          <option value="lecture">Lecture</option>
-          <option value="sport">Sport</option>
-          <option value="autre">Autre</option>
-        </select>
+        <button id="openTimer">⏲️ Timer</button>
 
-        <button id="toggleHistory">
-            📜 Historique
-        </button>
+        <button id="toggleHistory">📜 History</button>
       </div>
+    </div>
+
+    <div id="chronoMenu">
+      <button data-activity="course">Course</button>
+      <button data-activity="travail">Travail</button>
+      <button data-activity="lecture">Lecture</button>
+      <button data-activity="sport">Sport</button>
+      <button data-activity="autre">Autre</button>
+    </div>
+
+    <div id="timerPanel">
+      <label>
+        Durée :
+        <input type="number" id="timerDuration" value="25" />
+        min
+      </label>
+
+      <button id="startTimer">Démarrer</button>
     </div>
 
     <div id="history">
