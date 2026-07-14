@@ -11,6 +11,7 @@ let scene;
 let camera;
 let renderer;
 let controls;
+let environnementPret = false;
 
 let modele;
 
@@ -176,6 +177,9 @@ function init() {
     antialias: true,
   });
 
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 0.5;
+
   renderer.setPixelRatio(window.devicePixelRatio);
 
   renderer.setSize(window.innerWidth, window.innerHeight);
@@ -188,57 +192,31 @@ function init() {
 
   window.addEventListener("pointerdown", onPointerDown);
 
-  const ambiante = new THREE.AmbientLight(0xffffff, 2);
 
-  scene.add(ambiante);
-
-  const soleil = new THREE.DirectionalLight(
-    0xffffff,
-
-    4,
-  );
-
-  soleil.position.set(5, 5, 5);
-
-  scene.add(soleil);
-
-  const fill = new THREE.DirectionalLight(
-      0xffffff,
-      3
-  );
-
-  fill.position.set(
-      -5,
-      2,
-      5
-  );
-
-  scene.add(fill);
-
-  const rimLight = new THREE.DirectionalLight(
-      0xffffff,
-      5
-  );
-
-  rimLight.position.set(
-      -5,
-      5,
-      -5
-  );
-
-  scene.add(rimLight);
+  const pmremGenerator = new THREE.PMREMGenerator(renderer);
+  pmremGenerator.compileEquirectangularShader();
 
   const rgbeLoader = new RGBELoader();
 
   rgbeLoader.load(
-    "textures/environment/studio.hdr",
+    "textures/environment/studio_small_08_2k.hdr",
     (texture) => {
 
-      texture.mapping = THREE.EquirectangularReflectionMapping;
+      const envMap = pmremGenerator.fromEquirectangular(texture).texture;
 
-      scene.environment = texture;
-      scene.environmentIntensity = 1.5;
+      scene.environment = envMap;
+      scene.environmentIntensity = 0.4;
 
+      // scene.background = envMap;
+
+      environnementPret = true;
+
+      if (modele) {
+        modele.visible = true;
+      }
+
+      texture.dispose();
+      pmremGenerator.dispose();
     }
   );
 
@@ -260,6 +238,7 @@ function chargerGLB() {
     (gltf) => {
       modele = gltf.scene;
 
+      modele.visible = false;
       scene.add(modele);
 
       const boite = new THREE.Box3().setFromObject(modele);
@@ -267,32 +246,16 @@ function chargerGLB() {
       modele.traverse((obj) => {
         if (obj.name.includes("trotteuse-01")) {
           trotteuseSecondes = obj;
-
-          console.log("Trotteuse secondes trouvée :", obj.name);
         }
 
         if (obj.name.includes("trotteuse-02")) {
           trotteuseMinutes = obj;
+        }
 
-          console.log("Trotteuse minutes trouvée :", obj.name);
+        if (obj.isMesh) {
+          obj.geometry.computeVertexNormals();
         }
       });
-
-      modele.traverse((obj)=>{
-
-      if(obj.isMesh && obj.material.name === "Metal-chrome-01"){
-        obj.material = obj.material.clone();
-
-        obj.material.color.set(0xffffff);
-
-        obj.material.metalness = 1;
-
-        obj.material.roughness = 0.25;
-
-        obj.material.needsUpdate = true;
-      }
-
-  });
 
       const centre = boite.getCenter(new THREE.Vector3());
 
@@ -306,14 +269,12 @@ function chargerGLB() {
 
       modele.scale.setScalar(echelle);
 
-      // Recentrage après mise à l'échelle
       const boiteCentre = new THREE.Box3().setFromObject(modele);
 
       const nouveauCentre = boiteCentre.getCenter(new THREE.Vector3());
 
       modele.position.sub(nouveauCentre);
 
-      // Recalcule la boîte après mise à l'échelle
       const boite2 = new THREE.Box3().setFromObject(modele);
       const taille2 = boite2.getSize(new THREE.Vector3());
 
@@ -321,21 +282,14 @@ function chargerGLB() {
 
       camera.lookAt(0, 0, 0);
 
+
+      // Ici seulement le modèle existe
+      if (environnementPret) {
+        modele.visible = true;
+      }
+
       console.log("Objets présents :");
-
-    },
-
-    (xhr) => {
-      console.log(
-        Math.round((xhr.loaded / xhr.total) * 100),
-
-        "%",
-      );
-    },
-
-    (error) => {
-      console.error(error);
-    },
+    }
   );
 }
 
