@@ -81,7 +81,7 @@ timerButton.addEventListener("click", () => {
 
 // Récupération des éléments HTML
 const historyPanel = document.getElementById("history");
-const toggle = document.getElementById("toggleHistory");
+const openHistoryButton = document.getElementById("openHistory");
 const closeButton = document.getElementById("closeHistory");
 
 /**
@@ -91,9 +91,9 @@ const closeButton = document.getElementById("closeHistory");
  */
 function updateHistoryButton() {
   if (historyPanel.classList.contains("open")) {
-    toggle.textContent = "❌ Fermer";
+    openHistoryButton.textContent = "❌ Fermer";
   } else {
-    toggle.textContent = "📜 Historique";
+    openHistoryButton.textContent = "📜 Historique";
   }
 }
 
@@ -117,7 +117,7 @@ function closeHistory() {
  * Ouvre ou ferme le panneau lorsque
  * l'utilisateur clique sur le bouton.
  */
-toggle.addEventListener("click", () => {
+openHistoryButton.addEventListener("click", () => {
 
   if (historyPanel.classList.contains("open")) {
     closeHistory();
@@ -141,7 +141,7 @@ document.addEventListener("pointerdown", (event) => {
   if (
     historyPanel.classList.contains("open") &&
     !historyPanel.contains(event.target) &&
-    event.target !== toggle
+    event.target !== openHistoryButton
   ) {
     closeHistory();
   }
