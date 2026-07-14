@@ -148,14 +148,26 @@ timerActionButton.addEventListener("click", () => {
 
   // Démarrer le timer
   const minutes = Number(
-    document.getElementById("timerDuration").value
+    document.getElementById("timerMinutes").value
   );
 
-  if (minutes <= 0) {
+  const secondes = Number(
+    document.getElementById("timerSeconds").value
+  );
+
+  if(minutes === 0 && secondes === 0) {
     return;
   }
 
-  timerRestant = minutes * 60;
+  if (secondes > 59) {
+    return;
+  }
+
+  timerRestant = minutes * 60 + secondes;
+
+  if (timerRestant <= 0) {
+    return;
+  }
 
   updateTimerDisplay();
 

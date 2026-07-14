@@ -58,10 +58,22 @@
         Durée :
         <input
           type="number"
-          id="timerDuration"
+          id="timerMinutes"
           value="25"
-          min="1"
+          min="0"
         /> min
+      </label>
+
+
+      <label>
+        Secondes :
+        <input
+          type="number"
+          id="timerSeconds"
+          value="0"
+          min="0"
+          max="59"
+        />
       </label>
 
       <button id="timerAction">Démarrer</button>
