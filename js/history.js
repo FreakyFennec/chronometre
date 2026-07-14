@@ -2,8 +2,6 @@
 
 import { getSessions } from "./database.js";
 
-console.log("history.js chargé");
-
 let filtreActuel = "";
 
 function formatDuree(ms) {
@@ -19,11 +17,8 @@ function formatDate(dateISO) {
 }
 
 export async function displayHistory() {
-  console.log("displayHistory appelé");
 
   const container = document.getElementById("historyContent");
-
-  console.log("container :", container);
 
   if (!container) return;
 
@@ -107,8 +102,6 @@ function initHistoryFilter() {
 
 // Initialiser le filtre à l'ouverture de la page
 export function initHistory() {
-  console.log("Initialisation de l'historique");
-
   initHistoryFilter();
   displayHistory();
 }

@@ -48,11 +48,6 @@ activityButtons.forEach((button) => {
 
     activiteActuelle = button.dataset.activity;
 
-    console.log(
-      "Activité choisie :",
-      activiteActuelle
-    );
-
     chronoButton.textContent =
       "⏱️ " + activiteActuelle;
 
@@ -69,7 +64,6 @@ activityButtons.forEach((button) => {
 const timerPanel = document.getElementById("timerPanel");
 const openTimerButton = document.getElementById("openTimer");
 const closeTimerButton = document.getElementById("closeTimer");
-
 
 function updateTimerButton() {
   if (timerPanel.classList.contains("open")) {
@@ -106,6 +100,64 @@ openTimerButton.addEventListener("click", () => {
 closeTimerButton.addEventListener("click", closeTimer);
 
 updateTimerButton();
+
+const timerActionButton = document.getElementById("timerAction");
+
+let timerInterval = null;
+let timerRestant = 0;
+let timerEnCours = false;
+
+
+timerActionButton.addEventListener("click", () => {
+
+  if (timerEnCours) {
+
+    // Arrêter le timer
+    clearInterval(timerInterval);
+
+    timerInterval = null;
+    timerEnCours = false;
+
+    timerActionButton.textContent = "Démarrer";
+
+    return;
+  }
+
+  // Démarrer le timer
+  const minutes = Number(
+    document.getElementById("timerDuration").value
+  );
+
+  if (minutes <= 0) {
+    return;
+  }
+
+  timerRestant = minutes * 60;
+  timerEnCours = true;
+  timerActionButton.textContent = "Arrêter";
+
+  timerInterval = setInterval(() => {
+
+    timerRestant--;
+
+    console.log("Temps restant :", timerRestant);
+
+
+    if (timerRestant <= 0) {
+
+      clearInterval(timerInterval);
+      timerEnCours = false;
+      timerInterval = null;
+
+      timerActionButton.textContent = "Démarrer";
+
+      console.log("Timer terminé");
+    }
+
+  }, 1000);
+
+});
+
 
 // ============================================================================
 // Gestion du panneau latéral "Historique"
@@ -325,8 +377,6 @@ function chargerGLB() {
       if (environnementPret) {
         modele.visible = true;
       }
-
-      console.log("Objets présents :");
     }
   );
 }
@@ -344,16 +394,11 @@ function onPointerDown(event) {
 
   const intersections = raycaster.intersectObject(modele, true);
 
-  console.log("Intersections :", intersections.length);
-
   for (let i = 0; i < intersections.length; i++) {
     let objet = intersections[i].object;
 
-    console.log("Test objet :", objet.name);
-
     while (objet) {
       if (objet.name.includes("bouton-start-stop-01")) {
-        console.log("START détecté");
 
         startStop();
 
@@ -361,7 +406,6 @@ function onPointerDown(event) {
       }
 
       if (objet.name.includes("bouton-reset-01")) {
-        console.log("RESET détecté");
 
         resetChrono();
 
@@ -385,12 +429,8 @@ async function startStop() {
   if (!enMarche) {
     if (activiteActuelle === "") {
 
-      console.log("Aucune activité sélectionnée.");
-
       return;
     }
-
-    console.log("Demarrage :", activiteActuelle);
 
     debut = performance.now() - temps;
     enMarche = true;
@@ -471,22 +511,5 @@ function resize() {
     window.innerWidth,
 
     window.innerHeight,
-  );
-}
-
-if ("serviceWorker" in navigator) {
-  window.addEventListener(
-    "load",
-
-    () => {
-      navigator.serviceWorker
-        .register("service-worker.js")
-        .then(() => {
-          console.log("Service Worker enregistré");
-        })
-        .catch((err) => {
-          console.error(err);
-        });
-    },
   );
 }
