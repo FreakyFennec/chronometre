@@ -9,6 +9,7 @@ const FILES = [
   "./icon-192.png",
   "./icon-512.png",
   "./models/chronometre-01.glb",
+  "./textures/environment/studio_small_08_2k.hdr",
 ];
 
 // Installation
