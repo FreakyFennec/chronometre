@@ -307,6 +307,31 @@ select {
   display: flex;
 }
 
+.timer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+
+#closeTimer {
+  width: 36px;
+  height: 36px;
+
+  border: none;
+  border-radius: 50%;
+
+  background: #333;
+  color: white;
+
+  font-size: 18px;
+}
+
+
+#closeTimer:hover {
+  background: #555;
+}
+
 @keyframes slideIn {
   from {
     opacity: 0;
