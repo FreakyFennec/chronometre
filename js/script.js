@@ -38,9 +38,12 @@ const activityButtons = document.querySelectorAll(
 );
 
 chronoButton.addEventListener("click", () => {
-  chronoMenu.classList.toggle("open");
+  if (chronoMenu.classList.contains("open")) {
+    closeChrono();
+  } else {
+    openChrono();
+  }
 });
-
 
 activityButtons.forEach((button) => {
 
@@ -56,6 +59,26 @@ activityButtons.forEach((button) => {
   });
 
 });
+
+function updateChronoButton() {
+  if (chronoMenu.classList.contains("open")) {
+    chronoButton.textContent = "❌ Fermer";
+  } else if (activiteActuelle !== "") {
+    chronoButton.textContent = "⏱️ " + activiteActuelle;
+  } else {
+    chronoButton.textContent = "⏱️ Chrono";
+  }
+}
+
+function openChrono() {
+  chronoMenu.classList.add("open");
+  updateChronoButton();
+}
+
+function closeChrono() {
+  chronoMenu.classList.remove("open");
+  updateChronoButton();
+}
 
 // ===========================================================================
 // Gestion du panneau latéral "Timer"
@@ -258,7 +281,7 @@ document.addEventListener("pointerdown", (event) => {
     !timerPanel.contains(event.target) &&
     event.target !== openTimerButton
   ) {
-    timerPanel.classList.remove("open");
+    closeTimer();
   }
 });
 
