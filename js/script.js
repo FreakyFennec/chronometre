@@ -66,15 +66,46 @@ activityButtons.forEach((button) => {
 // Gestion du panneau latéral "Timer"
 // ============================================================================
 
-const timerButton = document.getElementById("openTimer");
+const timerPanel = document.getElementById("timerPanel");
+const openTimerButton = document.getElementById("openTimer");
+const closeTimerButton = document.getElementById("closeTimer");
 
-timerButton.addEventListener("click", () => {
 
-  const timerPanel = document.getElementById("timerPanel");
+function updateTimerButton() {
+  if (timerPanel.classList.contains("open")) {
+    openTimerButton.textContent = "❌ Fermer";
+  } else {
+    openTimerButton.textContent = "⏲️ Timer";
+  }
+}
 
-  timerPanel.classList.toggle("open");
+
+function openTimer() {
+  timerPanel.classList.add("open");
+  updateTimerButton();
+}
+
+
+function closeTimer() {
+  timerPanel.classList.remove("open");
+  updateTimerButton();
+}
+
+
+openTimerButton.addEventListener("click", () => {
+
+  if (timerPanel.classList.contains("open")) {
+    closeTimer();
+  } else {
+    openTimer();
+  }
 
 });
+
+
+closeTimerButton.addEventListener("click", closeTimer);
+
+updateTimerButton();
 
 // ============================================================================
 // Gestion du panneau latéral "Historique"
@@ -147,6 +178,13 @@ document.addEventListener("pointerdown", (event) => {
     closeHistory();
   }
 
+  if (
+    timerPanel.classList.contains("open") &&
+    !timerPanel.contains(event.target) &&
+    event.target !== openTimerButton
+  ) {
+    timerPanel.classList.remove("open");
+  }
 });
 
 /**
@@ -294,8 +332,6 @@ function chargerGLB() {
 }
 
 function onPointerDown(event) {
-  console.log("CLICK");
-
   if (!modele) return;
 
   const rect = renderer.domElement.getBoundingClientRect();
@@ -334,6 +370,14 @@ function onPointerDown(event) {
 
       objet = objet.parent;
     }
+  }
+
+  if (
+    timerPanel.classList.contains("open") &&
+    !timerPanel.contains(event.target) &&
+    event.target !== openTimerButton
+  ) {
+    closeTimer();
   }
 }
 
