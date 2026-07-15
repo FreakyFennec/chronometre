@@ -29,6 +29,8 @@ let temps = 0;
 
 let activiteActuelle = "";
 
+let chronoInteractif = true;
+
 // Interface HTML
 const chronoButton = document.getElementById("openChrono");
 const chronoMenu = document.getElementById("chronoMenu");
@@ -59,6 +61,7 @@ activityButtons.forEach((button) => {
   });
 
 });
+
 
 function updateChronoButton() {
   if (chronoMenu.classList.contains("open")) {
@@ -96,15 +99,16 @@ function updateTimerButton() {
   }
 }
 
-
+// Pour gérer l'activation ou non du chrono
 function openTimer() {
   timerPanel.classList.add("open");
+  chronoInteractif = false;
   updateTimerButton();
 }
 
-
 function closeTimer() {
   timerPanel.classList.remove("open");
+  chronoInteractif = true;
   updateTimerButton();
 }
 
@@ -425,6 +429,7 @@ async function prepareChronometre() {
 }
 
 function onPointerDown(event) {
+  if (!chronoInteractif) return;
   if (!modele) return;
 
   const rect = renderer.domElement.getBoundingClientRect();
