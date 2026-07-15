@@ -32,12 +32,6 @@ let activiteActuelle = "";
 
 let chronoInteractif = true;
 
-// const sonStart = await loadAudio("./sounds/start.mp3");
-// const sonStop = await loadAudio("./sounds/stop.mp3");
-// const sonFin = await loadAudio("./sounds/finish.mp3");
-
-let sonChrono;
-
 // Interface HTML
 const chronoButton = document.getElementById("openChrono");
 const chronoMenu = document.getElementById("chronoMenu");
@@ -94,6 +88,8 @@ function closeChrono() {
 // Pour le son
 // ===========================================================================
 
+let sonChrono = null;
+
 async function chargerSons() {
   sonChrono = await loadAudio("./sounds/chrono.mp3");
   sonChrono.loop = true;
@@ -104,12 +100,20 @@ chargerSons();
 function startSound() {
   console.log("startSound");
 
-  if (!sonChrono) return;
-
-  if (sonChrono.paused) {
-    sonChrono.currentTime = 0;
-    sonChrono.play();
+  if (!sonChrono) {
+    console.log("son pas chargé");
+    return;
   }
+
+  sonChrono.currentTime = 0;
+
+  sonChrono.play()
+    .then(() => {
+      console.log("son démarré");
+    })
+    .catch((error) => {
+      console.error("lecture audio bloquée :", error);
+    });
 }
 
 function stopSound() {
@@ -118,7 +122,6 @@ function stopSound() {
   sonChrono.pause();
   sonChrono.currentTime = 0;
 }
-
 // ===========================================================================
 // Gestion du panneau latéral "Timer"
 // ============================================================================
