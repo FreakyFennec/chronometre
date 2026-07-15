@@ -1,9 +1,15 @@
-const CACHE = "chrono";
+// service-worker.js
+
+const CACHE = "chrono-v2";
 
 const FILES = [
   "./",
   "./index.html",
   "./js/script.js",
+  "./js/session.js",
+  "./js/database.js",
+  "./js/history.js",
+  "./js/loaders/modelLoader.js",
   "./css/style.css",
   "./manifest.json",
   "./icon-192.png",
@@ -20,7 +26,17 @@ self.addEventListener("install", (event) => {
 
 // Activation
 self.addEventListener("activate", (event) => {
-  event.waitUntil(clients.claim());
+  event.waitUntil(
+    caches.keys().then((keys) =>
+      Promise.all(
+        keys
+          .filter((key) => key !== CACHE)
+          .map((key) => caches.delete(key))
+      )
+    )
+  );
+
+  self.clients.claim();
 });
 
 // Stratégie : Network First
