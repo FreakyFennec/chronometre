@@ -1,10 +1,10 @@
 import * as THREE from "three";
-import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { RGBELoader } from "three/addons/loaders/RGBELoader.js";
 import { createSession } from "./session.js";
 import { saveSession } from "./database.js";
 import { initHistory, displayHistory } from "./history.js";
+import { loadChronometre } from "./loaders/modelLoader.js";
 
 // Variables globales
 let scene;
@@ -368,7 +368,7 @@ function init() {
     }
   );
 
-  chargerGLB();
+  prepareChronometre();
 
   animate();
 
@@ -377,66 +377,51 @@ function init() {
   initHistory();
 }
 
-function chargerGLB() {
-  const loader = new GLTFLoader();
+async function prepareChronometre() {
 
-  loader.load(
-    "models/chronometre-01.glb",
+  const chrono = await loadChronometre();
 
-    (gltf) => {
-      modele = gltf.scene;
-
-      modele.visible = false;
-      scene.add(modele);
-
-      const boite = new THREE.Box3().setFromObject(modele);
-
-      modele.traverse((obj) => {
-        if (obj.name.includes("trotteuse-01")) {
-          trotteuseSecondes = obj;
-        }
-
-        if (obj.name.includes("trotteuse-02")) {
-          trotteuseMinutes = obj;
-        }
-
-        if (obj.isMesh) {
-          obj.geometry.computeVertexNormals();
-        }
-      });
-
-      const centre = boite.getCenter(new THREE.Vector3());
-
-      const taille = boite.getSize(new THREE.Vector3());
-
-      modele.position.sub(centre);
-
-      const max = Math.max(taille.x, taille.y, taille.z);
-
-      const echelle = 20 / max;
-
-      modele.scale.setScalar(echelle);
-
-      const boiteCentre = new THREE.Box3().setFromObject(modele);
-
-      const nouveauCentre = boiteCentre.getCenter(new THREE.Vector3());
-
-      modele.position.sub(nouveauCentre);
-
-      const boite2 = new THREE.Box3().setFromObject(modele);
-      const taille2 = boite2.getSize(new THREE.Vector3());
-
-      camera.position.set(0, 0, taille2.y * 2.5);
-
-      camera.lookAt(0, 0, 0);
+  modele = chrono.modele;
+  trotteuseSecondes = chrono.trotteuseSecondes;
+  trotteuseMinutes = chrono.trotteuseMinutes;
 
 
-      // Ici seulement le modèle existe
-      if (environnementPret) {
-        modele.visible = true;
-      }
-    }
-  );
+  scene.add(modele);
+
+  modele.visible = false;
+
+  const boite = new THREE.Box3().setFromObject(modele);
+
+  const centre = boite.getCenter(new THREE.Vector3());
+
+  const taille = boite.getSize(new THREE.Vector3());
+
+  modele.position.sub(centre);
+
+  const max = Math.max(taille.x, taille.y, taille.z);
+
+  const echelle = 20 / max;
+
+  modele.scale.setScalar(echelle);
+
+  const boiteCentre = new THREE.Box3().setFromObject(modele);
+
+  const nouveauCentre = boiteCentre.getCenter(new THREE.Vector3());
+
+  modele.position.sub(nouveauCentre);
+
+  const boite2 = new THREE.Box3().setFromObject(modele);
+  const taille2 = boite2.getSize(new THREE.Vector3());
+
+  camera.position.set(0, 0, taille2.y * 2.5);
+
+  camera.lookAt(0, 0, 0);
+
+
+  // Ici seulement le modèle existe
+  if (environnementPret) {
+    modele.visible = true;
+  }
 }
 
 function onPointerDown(event) {
