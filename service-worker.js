@@ -1,6 +1,6 @@
 // service-worker.js
 
-const CACHE = "chrono-v2";
+const CACHE = "chrono-1.3";
 
 const FILES = [
   "./",
