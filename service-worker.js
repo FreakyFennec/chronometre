@@ -10,11 +10,13 @@ const FILES = [
   "./js/database.js",
   "./js/history.js",
   "./js/loaders/modelLoader.js",
+  "./js/loaders/audioLoader.js",
   "./css/style.css",
   "./manifest.json",
   "./icon-192.png",
   "./icon-512.png",
   "./models/chronometre-01.glb",
+  "./sounds/chrono.mp3",
   "./textures/environment/studio_small_08_2k.hdr",
 ];
 

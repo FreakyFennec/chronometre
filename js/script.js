@@ -5,6 +5,7 @@ import { createSession } from "./session.js";
 import { saveSession } from "./database.js";
 import { initHistory, displayHistory } from "./history.js";
 import { loadChronometre } from "./loaders/modelLoader.js";
+import { loadAudio } from "./loaders/audioLoader.js";
 
 // Variables globales
 let scene;
@@ -30,6 +31,12 @@ let temps = 0;
 let activiteActuelle = "";
 
 let chronoInteractif = true;
+
+// const sonStart = await loadAudio("./sounds/start.mp3");
+// const sonStop = await loadAudio("./sounds/stop.mp3");
+// const sonFin = await loadAudio("./sounds/finish.mp3");
+
+let sonChrono;
 
 // Interface HTML
 const chronoButton = document.getElementById("openChrono");
@@ -81,6 +88,35 @@ function openChrono() {
 function closeChrono() {
   chronoMenu.classList.remove("open");
   updateChronoButton();
+}
+
+// ===========================================================================
+// Pour le son
+// ===========================================================================
+
+async function chargerSons() {
+  sonChrono = await loadAudio("./sounds/chrono.mp3");
+  sonChrono.loop = true;
+}
+
+chargerSons();
+
+function startSound() {
+  console.log("startSound");
+
+  if (!sonChrono) return;
+
+  if (sonChrono.paused) {
+    sonChrono.currentTime = 0;
+    sonChrono.play();
+  }
+}
+
+function stopSound() {
+  if (!sonChrono) return;
+
+  sonChrono.pause();
+  sonChrono.currentTime = 0;
 }
 
 // ===========================================================================
@@ -145,6 +181,8 @@ timerActionButton.addEventListener("click", () => {
     timerInterval = null;
     timerEnCours = false;
 
+    stopSound();
+
     timerActionButton.textContent = "Démarrer";
 
     return;
@@ -178,6 +216,8 @@ timerActionButton.addEventListener("click", () => {
   timerEnCours = true;
   timerActionButton.textContent = "Arrêter";
 
+  startSound();
+
   timerInterval = setInterval(() => {
 
     timerRestant--;
@@ -192,6 +232,8 @@ timerActionButton.addEventListener("click", () => {
       clearInterval(timerInterval);
       timerEnCours = false;
       timerInterval = null;
+
+      stopSound();
 
       updateTimerDisplay();
 
@@ -372,6 +414,8 @@ function init() {
     }
   );
 
+  chargerSons();
+
   prepareChronometre();
 
   animate();
@@ -482,9 +526,11 @@ async function startStop() {
 
     debut = performance.now() - temps;
     enMarche = true;
+    startSound();
   } else {
     temps = performance.now() - debut;
     enMarche = false;
+    stopSound();
 
     const session = createSession(
       activiteActuelle,
@@ -503,6 +549,8 @@ function resetChrono() {
   enMarche = false;
   temps = 0;
   debut = 0;
+
+  stopSound();
 
   if (trotteuseSecondes) {
     trotteuseSecondes.rotation.z = 0;
