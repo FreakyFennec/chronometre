@@ -3,7 +3,7 @@ html,
 body {
   margin: 0;
   width: 100%;
-  height: 100%;
+  min-height: 100dvh;
   overflow: hidden;
   background: #202020;
   font-family: Arial, Helvetica, sans-serif;
@@ -16,7 +16,7 @@ body {
 
 #ui {
   position: fixed;
-  top: 20px;
+  top: calc(env(save-area-inset-top) + 20px);
   left: 50%;
   transform: translateX(-50%);
 
@@ -68,10 +68,10 @@ select {
 
 #history {
   position: fixed;
-  top: 0;
+  top: env(safe-area-inset-top);
+  height: calc(100dvh - env(safe-area-inset-top));
   left: 0;
   width: min(85vw, 320px);
-  height: 100%;
   overflow-y: auto;
   padding: 20px;
   background: rgba(15, 15, 15, 0.95);
@@ -249,7 +249,7 @@ select {
 
 #historyMenu {
   position: fixed;
-  top: 90px;
+  top: calc(env(safe-area-inset-top) + 90px);
   left: 50%;
   transform: translateX(-50%) translateY(-20px);
 
@@ -281,7 +281,7 @@ select {
 
 #chronoMenu {
   position: fixed;
-  top: 90px;
+  top: calc(env(safe-area-inset-top) + 90px);
   left: 50%;
   transform: translateX(-50%) translateY(-20px);
 
@@ -315,7 +315,7 @@ select {
 
 #timerPanel {
   position: fixed;
-  top: 90px;
+  top: calc(env(safe-area-inset-top) + 90px);
   left: 50%;
   transform: translateX(-50%) translateY(-20px);
 
