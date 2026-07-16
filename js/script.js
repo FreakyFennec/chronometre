@@ -383,18 +383,27 @@ closeButton.addEventListener("click", closeHistory);
 // Fermeture en cliquant à l'extérieur
 document.addEventListener("pointerdown", (event) => {
 
+  // Ferme le menu chrono si clic extérieur
+  if (
+    chronoMenu.classList.contains("open") &&
+    !chronoMenu.contains(event.target) &&
+    event.target !== chronoButton
+  ) {
+    closeChrono();
+  }
 
-  // Ferme le menu activité
+
+  // Ferme le menu history si clic extérieur
   if (
     historyMenu.classList.contains("open") &&
-    event.target !== openHistoryButton &&
-    !historyMenu.contains(event.target)
+    !historyMenu.contains(event.target) &&
+    event.target !== openHistoryButton
   ) {
     historyMenu.classList.remove("open");
   }
 
 
-  // Ferme le panneau historique
+  // Ferme le panneau history si clic extérieur
   if (
     historyPanel.classList.contains("open") &&
     !historyPanel.contains(event.target) &&
@@ -404,7 +413,7 @@ document.addEventListener("pointerdown", (event) => {
   }
 
 
-  // Ferme le timer
+  // Ferme le timer si clic extérieur
   if (
     timerPanel.classList.contains("open") &&
     !timerPanel.contains(event.target) &&
@@ -414,7 +423,6 @@ document.addEventListener("pointerdown", (event) => {
   }
 
 });
-
 
 // Initialisation du bouton
 updateHistoryButton();
