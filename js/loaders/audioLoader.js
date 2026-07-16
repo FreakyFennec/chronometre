@@ -18,5 +18,4 @@ export function loadAudio(path) {
       reject(new Error(`Erreur de chargement : ${path}`));
     });
   });
-
 }

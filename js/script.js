@@ -89,10 +89,14 @@ function closeChrono() {
 // ===========================================================================
 
 let sonChrono = null;
+let sonFin = null;
 
 async function chargerSons() {
   sonChrono = await loadAudio("./sounds/chrono.mp3");
   sonChrono.loop = true;
+
+  sonFin = await loadAudio("./sounds/klaxon-oogah.mp3");
+  sonFin.loop = false;
 }
 
 chargerSons();
@@ -122,8 +126,31 @@ function stopSound() {
   sonChrono.pause();
   sonChrono.currentTime = 0;
 }
+
+function playEndSound() {
+  console.log("playEndSound");
+  
+  if (!sonFin) {
+    console.log("Son de fin non chargé");
+    return;
+  }
+
+  console.log(sonFin.src);
+
+  sonFin.pause(); // S'il était en cours
+  sonFin.currentTime = 0;
+
+  sonFin.play()
+    .then(() => {
+      console.log("Son de fin joué");
+    })
+    .catch((error) => {
+      console.error("Lecture audio bloquée : ", error);
+    });
+}
+
 // ===========================================================================
-// Gestion du panneau latéral "Timer"
+// Gestion du panneau "Timer"
 // ============================================================================
 
 const timerPanel = document.getElementById("timerPanel");
@@ -180,14 +207,13 @@ timerActionButton.addEventListener("click", () => {
 
     // Arrêter le timer
     clearInterval(timerInterval);
-
     timerInterval = null;
     timerEnCours = false;
 
     stopSound();
+    playEndSound();
 
     timerActionButton.textContent = "Démarrer";
-
     return;
   }
 
@@ -237,17 +263,15 @@ timerActionButton.addEventListener("click", () => {
       timerInterval = null;
 
       stopSound();
+      playEndSound();
 
       updateTimerDisplay();
 
       timerActionButton.textContent = "Démarrer";
 
-
       console.log("Timer terminé");
     }
-
   }, 1000);
-
 });
 
 // Affichage du temps restant

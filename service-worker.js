@@ -17,6 +17,7 @@ const FILES = [
   "./icon-512.png",
   "./models/chronometre-01.glb",
   "./sounds/chrono.mp3",
+  "./sounds/klaxon-oogah.mp3",
   "./textures/environment/studio_small_08_2k.hdr",
 ];
 
