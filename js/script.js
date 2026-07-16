@@ -50,7 +50,12 @@ const activityButtons = document.querySelectorAll(
 );
 
 // Ouvre ou ferme le menu manuellement
-chronoButton.addEventListener("click", () => {
+chronoButton.addEventListener("click", async () => {
+
+  // Débloque le chargement audio après une interaction utilisateur
+  if (!sonChrono || !sonFin) {
+    await chargerSons();
+  }
 
   chronoMenu.classList.toggle("open");
 
@@ -128,6 +133,12 @@ let sonChrono = null;
 let sonFin = null;
 
 async function chargerSons() {
+
+
+  if (sonChrono && sonFin) {
+    return;
+  }
+
   sonChrono = await loadAudio("./sounds/chrono.mp3");
   sonChrono.loop = true;
 
@@ -527,7 +538,7 @@ function init() {
     }
   );
 
-  chargerSons();
+  // chargerSons();
 
   prepareChronometre();
 

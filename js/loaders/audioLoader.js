@@ -9,7 +9,7 @@ export function loadAudio(path) {
     audio.src = path;
     audio.preload = "auto";
 
-    audio.addEventListener("canplaythrough", () => {
+    audio.addEventListener("loadeddata", () => {
       resolve(audio);
     });
 
@@ -17,5 +17,7 @@ export function loadAudio(path) {
       console.error("Impossible de charger :", path);
       reject(new Error(`Erreur de chargement : ${path}`));
     });
+
+    audio.load();
   });
 }
