@@ -129,7 +129,7 @@ function stopSound() {
 
 function playEndSound() {
   console.log("playEndSound");
-  
+
   if (!sonFin) {
     console.log("Son de fin non chargé");
     return;
@@ -294,65 +294,107 @@ function updateTimerDisplay() {
 // Gestion du panneau latéral "Historique"
 // ============================================================================
 
+// ============================================================================
+// Gestion du panneau latéral "Historique"
+// ============================================================================
+
 // Récupération des éléments HTML
 const historyPanel = document.getElementById("history");
 const openHistoryButton = document.getElementById("openHistory");
 const closeButton = document.getElementById("closeHistory");
+const historyMenu = document.getElementById("historyMenu");
 
-/**
- * Met à jour le texte du bouton principal.
- * - Si le panneau est ouvert : "❌ Fermer"
- * - Sinon : "📜 Historique"
- */
-function updateHistoryButton() {
-  if (historyPanel.classList.contains("open")) {
-    openHistoryButton.textContent = "❌ Fermer";
-  } else {
-    openHistoryButton.textContent = "📜 Historique";
-  }
-}
 
-/**
- * Ouvre le panneau latéral.
- */
-function openHistory() {
-  historyPanel.classList.add("open");
-  updateHistoryButton();
-}
-
-/**
- * Ferme le panneau latéral.
- */
-function closeHistory() {
-  historyPanel.classList.remove("open");
-  updateHistoryButton();
-}
-
-/**
- * Ouvre ou ferme le panneau lorsque
- * l'utilisateur clique sur le bouton.
- */
+// Ouverture du menu de sélection des activités
 openHistoryButton.addEventListener("click", () => {
 
+  // Si le panneau historique est déjà ouvert : on le ferme
   if (historyPanel.classList.contains("open")) {
     closeHistory();
-  } else {
-    openHistory();
+    return;
   }
+
+  // Sinon on affiche le menu des activités
+  historyMenu.classList.toggle("open");
 
 });
 
-/**
- * Fermeture avec le bouton ✕
- */
+
+// Choix d'une activité dans le menu
+historyMenu.querySelectorAll("button").forEach(button => {
+
+  button.addEventListener("click", () => {
+
+    const activite = button.dataset.activity;
+
+    // Applique le filtre dans le select du panneau historique
+    document.getElementById("filtreActivite").value = activite;
+
+    // Ferme le menu sous le bouton
+    historyMenu.classList.remove("open");
+
+    // Ouvre le panneau historique
+    openHistory();
+
+    // Recharge l'affichage filtré
+    displayHistory();
+
+  });
+
+});
+
+
+// Mise à jour du bouton principal
+function updateHistoryButton() {
+
+  if (historyPanel.classList.contains("open")) {
+    openHistoryButton.textContent = "❌ Fermer";
+  } else {
+    openHistoryButton.textContent = "📜 History";
+  }
+
+}
+
+
+// Ouvre le panneau historique
+function openHistory() {
+
+  historyPanel.classList.add("open");
+
+  updateHistoryButton();
+
+}
+
+
+// Ferme le panneau historique
+function closeHistory() {
+
+  historyPanel.classList.remove("open");
+
+  updateHistoryButton();
+
+}
+
+
+// Fermeture avec le bouton ✕
 closeButton.addEventListener("click", closeHistory);
 
-/**
- * Fermeture lorsqu'on clique
- * à l'extérieur du panneau.
- */
+
+// Fermeture en cliquant à l'extérieur
 document.addEventListener("pointerdown", (event) => {
 
+
+  // Ferme le menu activité
+  if (
+    historyMenu.classList.contains("open") &&
+    event.target !== openHistoryButton &&
+    !historyMenu.contains(event.target)
+  ) {
+    historyMenu.classList.remove("open");
+  }
+
+
+  // Ferme le panneau historique
   if (
     historyPanel.classList.contains("open") &&
     !historyPanel.contains(event.target) &&
@@ -361,6 +403,8 @@ document.addEventListener("pointerdown", (event) => {
     closeHistory();
   }
 
+
+  // Ferme le timer
   if (
     timerPanel.classList.contains("open") &&
     !timerPanel.contains(event.target) &&
@@ -368,14 +412,12 @@ document.addEventListener("pointerdown", (event) => {
   ) {
     closeTimer();
   }
+
 });
 
-/**
- * Initialise le texte du bouton
- * au chargement de la page.
- */
-updateHistoryButton();
 
+// Initialisation du bouton
+updateHistoryButton();
 
 // Démarrage de l'application
 init();
