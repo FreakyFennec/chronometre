@@ -7,32 +7,41 @@ import { initHistory, displayHistory } from "./history.js";
 import { loadChronometre } from "./loaders/modelLoader.js";
 import { loadAudio } from "./loaders/audioLoader.js";
 
+// ============================================================================
 // Variables globales
+// ============================================================================
+
+// Scène Three.js
 let scene;
 let camera;
 let renderer;
 let controls;
+
 let environnementPret = false;
 
+// Modèle 3D
 let modele;
-
 let trotteuseMinutes;
 let trotteuseSecondes;
 
-
+// Détection des clics sur le modèle
 const raycaster = new THREE.Raycaster();
-
 const souris = new THREE.Vector2();
 
+// État du chronomètre
 let enMarche = false;
 let debut = 0;
 let temps = 0;
 
-let activiteActuelle = "";
-
+// Empêche les interactions avec le chrono lorsque le timer est ouvert
 let chronoInteractif = true;
 
-// Interface HTML
+let tempsSession = 0;
+
+// ============================================================================
+// Menu de choix de l'activité (après arrêt du chrono)
+// ============================================================================
+
 const chronoButton = document.getElementById("openChrono");
 const chronoMenu = document.getElementById("chronoMenu");
 
@@ -40,48 +49,75 @@ const activityButtons = document.querySelectorAll(
   "#chronoMenu button"
 );
 
+// Ouvre ou ferme le menu manuellement
 chronoButton.addEventListener("click", () => {
-  if (chronoMenu.classList.contains("open")) {
-    closeChrono();
-  } else {
-    openChrono();
-  }
+
+  chronoMenu.classList.toggle("open");
+
+  updateChronoButton();
+
 });
 
+// Choix de l'activité après une session
 activityButtons.forEach((button) => {
 
-  button.addEventListener("click", () => {
+  button.addEventListener("click", async () => {
 
-    activiteActuelle = button.dataset.activity;
+    closeChrono();
 
-    chronoButton.textContent =
-      "⏱️ " + activiteActuelle;
+    // Bouton "Ne pas enregistrer"
+    if (button.dataset.activity === "") {
+      tempsSession = 0;
+      resetChrono();
+      return;
+    }
 
-    chronoMenu.classList.remove("open");
+    // Ne pas enregistrer une session vide
+    if (button.dataset.activity <= 0) {
+      resetChrono();
+      return;
+    }
 
+    const session = createSession(
+      button.dataset.activity,
+      tempsSession
+    );
+
+    await saveSession(session);
+
+    await displayHistory();
+
+    tempsSession = 0;
+    resetChrono();
   });
-
 });
 
-
+// Met à jour le texte du bouton
 function updateChronoButton() {
-  if (chronoMenu.classList.contains("open")) {
-    chronoButton.textContent = "❌ Fermer";
-  } else if (activiteActuelle !== "") {
-    chronoButton.textContent = "⏱️ " + activiteActuelle;
-  } else {
-    chronoButton.textContent = "⏱️ Chrono";
-  }
+
+  chronoButton.textContent =
+    chronoMenu.classList.contains("open")
+      ? "❌ Fermer"
+      : "⏱️ Chrono";
+
 }
 
+// Ouvre le menu
 function openChrono() {
+
   chronoMenu.classList.add("open");
+
   updateChronoButton();
+
 }
 
+// Ferme le menu
 function closeChrono() {
+
   chronoMenu.classList.remove("open");
+
   updateChronoButton();
+
 }
 
 // ===========================================================================
@@ -596,30 +632,25 @@ function onPointerDown(event) {
 
 async function startStop() {
   if (!enMarche) {
-    if (activiteActuelle === "") {
 
-      return;
-    }
-
+    // Démarrage immédiat
     debut = performance.now() - temps;
     enMarche = true;
     startSound();
-  } else {
-    temps = performance.now() - debut;
-    enMarche = false;
-    stopSound();
 
-    const session = createSession(
-      activiteActuelle,
-      temps
-    );
-
-    // Enregistrement de la session dans IndexedDB
-    await saveSession(session);
-
-    // Mise à jour de l'affichage de l'historique
-    displayHistory();
+    return;
   }
+
+  // Arrêt chrono
+  temps = performance.now() - debut;
+  tempsSession = temps;
+
+  // Sauvegarde du temps arrêté
+  enMarche = false;
+  stopSound();
+
+  // Demande sous quelle activité enregistre le chrono
+  openChrono();
 }
 
 function resetChrono() {
