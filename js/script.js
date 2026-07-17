@@ -585,10 +585,18 @@ async function prepareChronometre() {
   const boite2 = new THREE.Box3().setFromObject(modele);
   const taille2 = boite2.getSize(new THREE.Vector3());
 
-  camera.position.set(0, 0, taille2.y * 2.5);
+  const distance = Math.max(taille2.x, taille2.y, taille2.z) * 2;
 
+  camera.position.set(0, 0, distance);
   camera.lookAt(0, 0, 0);
 
+  controls.target.set(0, 0, 0);
+
+  controls.minDistance = distance * 0.8; // l'utilisateur peut se rapprocher de 20 %
+  controls.maxDistance = distance * 1.2; // il peut s'éloigner de 20 %
+
+  controls.update();
+  controls.saveState();
 
   // Ici seulement le modèle existe
   if (environnementPret) {
